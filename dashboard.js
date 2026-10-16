@@ -1,55 +1,34 @@
 const METRICS={bleu1:{label:'BLEU-1',key:'bleu1'},bleu2:{label:'BLEU-2',key:'bleu2'},bleu3:{label:'BLEU-3',key:'bleu3'},bleu4:{label:'BLEU-4',key:'bleu4'},meteor:{label:'METEOR',key:'meteor'},cider:{label:'CIDEr',key:'cider'}};
-let allRows=[], metric='bleu1', thresholdChart=null, historyChart=null;
-const $=id=>document.getElementById(id);
-const fmt=(v,k=metric)=>v==null?'—':(k==='cider'?Number(v).toFixed(4):Number(v).toFixed(2));
-const clean=s=>String(s??'').replace(/\s+/g,' ').trim();
+const $=id=>document.getElementById(id);let allRows=[],metric='bleu1',charts={};
+const fmt=(v,k=metric)=>v==null||!Number.isFinite(Number(v))?'—':Number(v).toFixed(k==='cider'?4:2);
 async function init(){
- try{const res=await fetch('data/glance_results.json');if(!res.ok)throw Error('Could not load results JSON');allRows=await res.json();}
- catch(e){$('resultsBody').innerHTML='<tr><td colspan="11">Could not load data/glance_results.json. Make sure you are viewing this dashboard through GitHub Pages or a local web server.</td></tr>';return;}
- allRows.forEach(r=>{r.dataset=clean(r.dataset);r.history=clean(r.history)});
- $('bestBleu').textContent=fmt(Math.max(...allRows.map(r=>r.bleu1)),'bleu1');
- $('bestMeteor').textContent=fmt(Math.max(...allRows.map(r=>r.meteor)),'meteor');
- $('bestCider').textContent=fmt(Math.max(...allRows.map(r=>r.cider)),'cider');
- $('runCount').textContent=allRows.length;
- ['datasetFilter','historyFilter','thresholdFilter','batchFilter'].forEach(id=>$(id).addEventListener('change',render));
- $('resetFilters').addEventListener('click',()=>{['datasetFilter','historyFilter','thresholdFilter','batchFilter'].forEach(id=>$(id).value='all');render()});
- document.querySelectorAll('.metric-btn').forEach(b=>b.addEventListener('click',()=>{metric=b.dataset.metric;document.querySelectorAll('.metric-btn').forEach(x=>x.classList.toggle('active',x===b));render()}));
- $('downloadCsv').addEventListener('click',downloadCsv);
- render();
+ try{const r=await fetch('data/glance_results.json');if(!r.ok)throw Error('data fetch failed');allRows=await r.json();}
+ catch(e){$('resultsBody').innerHTML='<tr><td colspan="11">Could not load data/glance_results.json. Open this dashboard through GitHub Pages or a local web server.</td></tr>';return;}
+ allRows.forEach(r=>{r.dataset=String(r.dataset||'').trim();r.history=String(r.history||'').trim();});
+ $('bestBleu').textContent=fmt(Math.max(...allRows.map(r=>Number(r.bleu1)).filter(Number.isFinite)),'bleu1');
+ $('bestMeteor').textContent=fmt(Math.max(...allRows.map(r=>Number(r.meteor)).filter(Number.isFinite)),'meteor');
+ $('bestCider').textContent=fmt(Math.max(...allRows.map(r=>Number(r.cider)).filter(Number.isFinite)),'cider');$('runCount').textContent=allRows.length;
+ ['datasetFilter','historyFilter','batchFilter'].forEach(id=>$(id).addEventListener('change',render));$('resetFilters').addEventListener('click',()=>{['datasetFilter','historyFilter','batchFilter'].forEach(id=>$(id).value='all');render();});
+ document.querySelectorAll('[data-metric]').forEach(b=>b.addEventListener('click',()=>{metric=b.dataset.metric;document.querySelectorAll('[data-metric]').forEach(x=>x.classList.toggle('active',x===b));render();}));
+ document.querySelectorAll('.nav-btn[data-target]').forEach(b=>b.addEventListener('click',()=>{const target=b.dataset.target;document.querySelectorAll('.nav-btn').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.content .page').forEach(p=>p.classList.toggle('active',p.id===target));$('pageTitle').textContent=({overview:'Dashboard — Overview',threshold:'Analysis — Word Threshold',history:'Analysis — History Comparison',results:'Results — Explorer'})[target];window.scrollTo({top:0,behavior:'smooth'});if(window.innerWidth<=900)closeSb();}));
+ $('downloadCsv').addEventListener('click',downloadCsv);render();
 }
-function filtered(){
- return allRows.filter(r=>{
-  const d=$('datasetFilter').value,h=$('historyFilter').value,t=$('thresholdFilter').value,b=$('batchFilter').value;
-  return (d==='all'||r.dataset===d)&&(h==='all'||r.history===h)&&(t==='all'||String(r.threshold)===t)&&(b==='all'||(b==='unknown'?r.batch==null:String(r.batch)===b));
- });
+function filtered(){return allRows.filter(r=>{const d=$('datasetFilter').value,h=$('historyFilter').value,b=$('batchFilter').value;return(d==='all'||r.dataset===d)&&(h==='all'||r.history===h)&&(b==='all'||(b==='unknown'?(r.batch==null):(String(r.batch)===b)));});}
+function avg(rows,key){const a=rows.map(r=>Number(r[key])).filter(Number.isFinite);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null;}
+function baseOptions(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,font:{family:'Outfit',size:11}}},tooltip:{backgroundColor:'#1e2340',padding:10}},scales:{x:{grid:{display:false},ticks:{font:{family:'Outfit',size:10},color:'#8892b0'},border:{display:false}},y:{beginAtZero:true,grid:{color:'#edf0f7'},ticks:{font:{family:'Space Mono',size:10},color:'#8892b0'},border:{display:false}}}};}
+function makeChart(id,type,data,options={}){if(charts[id])charts[id].destroy();charts[id]=new Chart($(id),{type,data,options:{...baseOptions(),...options}});}
+function render(){const rows=filtered();$('tableCount').textContent=`${rows.length} records`;drawTable(rows);drawCharts(rows);drawInsight(rows);drawHistorySummary(rows);}
+function drawCharts(rows){const ts=[2,3,4],hs=['Global History','Local History'],colors=['#2563eb','#7c3aed','#059669','#d97706'];const key=METRICS[metric].key;
+ const thresholdSets=hs.map((h,i)=>({label:h,data:ts.map(t=>avg(rows.filter(r=>r.threshold===t&&r.history===h),key)),backgroundColor:i?'#7c3aed':'#2563eb',borderRadius:5,maxBarThickness:35}));
+ makeChart('thresholdChart','bar',{labels:ts.map(t=>`Threshold ${t}`),datasets:thresholdSets});
+ makeChart('thresholdDetailChart','bar',{labels:ts.map(t=>`Threshold ${t}`),datasets:[{label:METRICS[metric].label,data:ts.map(t=>avg(rows.filter(r=>r.threshold===t),key)),backgroundColor:['#2563eb','#7c3aed','#059669'],borderRadius:6,maxBarThickness:55}]});
+ makeChart('historyChart','bar',{labels:['Global History','Local History'],datasets:[{label:METRICS[metric].label,data:hs.map(h=>avg(rows.filter(r=>r.history===h),key)),backgroundColor:['#2563eb','#7c3aed'],borderRadius:5,maxBarThickness:65}]});
+ makeChart('historyDetailChart','bar',{labels:['BLEU-1','BLEU-2','BLEU-3','BLEU-4','METEOR','CIDEr'],datasets:hs.map((h,i)=>({label:h,data:Object.keys(METRICS).map(k=>avg(rows.filter(r=>r.history===h),METRICS[k].key)),backgroundColor:i?'#7c3aed':'#2563eb',borderRadius:4}))});
+ const ds=[...new Set(rows.map(r=>r.dataset))];makeChart('datasetChart','bar',{labels:ds,datasets:ts.map((t,i)=>({label:`Threshold ${t}`,data:ds.map(d=>avg(rows.filter(r=>r.dataset===d&&r.threshold===t),key)),backgroundColor:colors[i],borderRadius:4}))});
 }
-function avg(rows,key){const vals=rows.map(r=>r[key]).filter(v=>v!=null&&Number.isFinite(Number(v)));return vals.length?vals.reduce((a,b)=>a+Number(b),0)/vals.length:null}
-function baseOptions(){return {responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:7,boxHeight:7,padding:17,font:{family:'Manrope',size:9}}},tooltip:{backgroundColor:'#173e35',padding:11,titleFont:{family:'Manrope'},bodyFont:{family:'Manrope'},callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}},scales:{x:{grid:{display:false},ticks:{font:{family:'Manrope',size:9},color:'#87938b'},border:{display:false}},y:{beginAtZero:true,grid:{color:'#eef1ed'},ticks:{font:{family:'DM Mono',size:9},color:'#87938b'},border:{display:false}}}}}
-function render(){const rows=filtered();$('tableCount').textContent=`${rows.length} ${rows.length===1?'record':'records'}`;drawTable(rows);drawCharts(rows);drawInsight(rows);}
-function drawCharts(rows){
- const thresholds=[2,3,4], histories=['Global History','Local History'];
- const colors={'Global History':'#83b95e','Local History':'#254e3d'};
- const tsets=histories.map(h=>({label:h,data:thresholds.map(t=>avg(rows.filter(r=>r.threshold===t&&r.history===h),METRICS[metric].key)),backgroundColor:colors[h],borderRadius:5,maxBarThickness:38}));
- const opts=baseOptions();opts.scales.y.ticks.callback=v=>metric==='cider'?Number(v).toFixed(2):Number(v).toFixed(0);
- if(thresholdChart)thresholdChart.destroy();
- thresholdChart=new Chart($('thresholdChart'),{type:'bar',data:{labels:thresholds.map(t=>`Threshold ${t}`),datasets:tsets},options:opts});
- const hsets=histories.map(h=>({label:h,data:[avg(rows.filter(r=>r.history===h),METRICS[metric].key)],backgroundColor:colors[h],borderRadius:5,maxBarThickness:55}));
- if(historyChart)historyChart.destroy();
- historyChart=new Chart($('historyChart'),{type:'bar',data:{labels:['Mean score'],datasets:hsets},options:{...baseOptions(),scales:{...baseOptions().scales,x:{...baseOptions().scales.x,stacked:false},y:{...baseOptions().scales.y,beginAtZero:true,ticks:{...baseOptions().scales.y.ticks,callback:v=>metric==='cider'?Number(v).toFixed(2):Number(v).toFixed(0)}}}}});
-}
-function drawTable(rows){
- const sorted=[...rows].sort((a,b)=>a.dataset.localeCompare(b.dataset)||a.history.localeCompare(b.history)||a.threshold-b.threshold||(a.batch??999)-(b.batch??999));
- $('resultsBody').innerHTML=sorted.map(r=>`<tr><td>${r.dataset}</td><td><span class="pill">${r.history}</span></td><td>${r.threshold}</td><td>${r.epoch??'—'}</td><td>${r.batch??'—'}</td><td>${fmt(r.bleu1,'bleu1')}</td><td>${fmt(r.bleu2,'bleu2')}</td><td>${fmt(r.bleu3,'bleu3')}</td><td>${fmt(r.bleu4,'bleu4')}</td><td>${fmt(r.meteor,'meteor')}</td><td>${fmt(r.cider,'cider')}</td></tr>`).join('')||'<tr><td colspan="11">No runs match the selected filters.</td></tr>';
-}
-function drawInsight(rows){
- const key=METRICS[metric].key, groups=[2,3,4].map(t=>({t,v:avg(rows.filter(r=>r.threshold===t),key)})).filter(x=>x.v!=null);
- if(!groups.length){$('metricInsight').textContent=`No ${METRICS[metric].label} values match the current filters.`;return}
- groups.sort((a,b)=>b.v-a.v);const best=groups[0],v=fmt(best.v,metric);
- $('metricInsight').textContent=`${METRICS[metric].label}: threshold ${best.t} has the highest mean among the currently filtered runs (${v}). This is a descriptive comparison of recorded runs, not a statistical significance test.`;
-}
-function downloadCsv(){
- const rows=filtered(), cols=['dataset','history','threshold','epoch','batch','bleu1','bleu2','bleu3','bleu4','meteor','cider','rouge'];
- const csv=[cols.join(','),...rows.map(r=>cols.map(k=>{let v=r[k]??'';return `"${String(v).replace(/"/g,'""')}"`}).join(','))].join('\r\n');
- const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='glance_filtered_results.csv';a.click();URL.revokeObjectURL(url);
-}
+function drawTable(rows){const sorted=[...rows].sort((a,b)=>a.dataset.localeCompare(b.dataset)||a.history.localeCompare(b.history)||Number(a.threshold)-Number(b.threshold)||(Number(a.batch)||999)-(Number(b.batch)||999));$('resultsBody').innerHTML=sorted.map(r=>`<tr><td>${r.dataset}</td><td>${r.history}</td><td>${r.threshold??'—'}</td><td>${r.epoch??'—'}</td><td>${r.batch??'—'}</td><td class="num">${fmt(r.bleu1,'bleu1')}</td><td class="num">${fmt(r.bleu2,'bleu2')}</td><td class="num">${fmt(r.bleu3,'bleu3')}</td><td class="num">${fmt(r.bleu4,'bleu4')}</td><td class="num">${fmt(r.meteor,'meteor')}</td><td class="num">${fmt(r.cider,'cider')}</td></tr>`).join('')||'<tr><td colspan="11">No runs match the selected filters.</td></tr>';}
+function drawInsight(rows){const key=METRICS[metric].key,groups=[2,3,4].map(t=>({t,v:avg(rows.filter(r=>Number(r.threshold)===t),key)})).filter(x=>x.v!=null);if(!groups.length){$('metricInsight').textContent='No values match the current filters.';return;}groups.sort((a,b)=>b.v-a.v);$('metricInsight').textContent=`${METRICS[metric].label}: threshold ${groups[0].t} has the highest mean across currently filtered runs (${fmt(groups[0].v)}). This is a descriptive comparison, not a statistical significance test.`;}
+function drawHistorySummary(rows){$('historySummary').innerHTML=['Global History','Local History'].map((h,i)=>{const subset=rows.filter(r=>r.history===h),v=avg(subset,METRICS[metric].key);return `<div class="stat-row"><div class="stat-cap">${h}</div><div class="stat-big" style="color:${i?'var(--purple)':'var(--blue)'}">${fmt(v)}</div><div class="stat-cap">${subset.length} recorded runs · ${METRICS[metric].label}</div></div>`;}).join('');}
+function downloadCsv(){const rows=filtered(),cols=['dataset','history','threshold','epoch','batch','bleu1','bleu2','bleu3','bleu4','meteor','cider','rouge'];const csv=[cols.join(','),...rows.map(r=>cols.map(k=>`"${String(r[k]??'').replace(/"/g,'""')}"`).join(','))].join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));const a=document.createElement('a');a.href=url;a.download='glance_filtered_results.csv';a.click();URL.revokeObjectURL(url);}
+function toggleSb(){$('sidebar').classList.toggle('open');$('sbOverlay').classList.toggle('show');$('hamburger').classList.toggle('open');}function closeSb(){$('sidebar').classList.remove('open');$('sbOverlay').classList.remove('show');$('hamburger').classList.remove('open');}
 init();

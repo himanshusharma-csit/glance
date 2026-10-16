@@ -1,59 +1,55 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Interactive evaluation dashboard for the GLANCE Hindi image-captioning framework.">
-<title>GLANCE | Experimental Results</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="GLANCE Hindi image-captioning framework results dashboard.">
+<title>GLANCE · Analytics Dashboard</title>
 <link rel="stylesheet" href="dashboard.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
-<div class="shell">
-  <aside class="sidebar">
-    <div class="brand"><div class="brand-mark">G</div><div><b>GLANCE</b><span>RESEARCH DASHBOARD</span></div></div>
-    <div class="side-label">WORKSPACE</div>
-    <a class="nav active" href="#overview"><span>◫</span> Overview</a>
-    <a class="nav" href="#analysis"><span>⌁</span> Word-threshold ablation</a>
-    <a class="nav" href="#results"><span>▤</span> Results explorer</a>
-    <a class="nav" href="#history"><span>◎</span> History comparison</a>
-    <div class="side-bottom"><div class="live-dot"></div><span>EXPERIMENT DATA</span><small>Excel results · 36 runs</small></div>
-  </aside>
-  <main class="main">
-    <header class="topbar"><div class="crumb">RESEARCH <span>/</span> EXPERIMENTS <span>/</span> <b>GLANCE</b></div><div class="top-tag">HINDI IMAGE CAPTIONING <i></i></div></header>
-    <section class="hero" id="overview">
-      <div class="hero-copy"><div class="eyebrow"><span class="eyebrow-line"></span> MODEL EVALUATION / 2026</div>
-      <h1>GLANCE<span class="dot">.</span><br><em>Experimental results</em></h1>
-      <p>Explore word-vocabulary thresholds and compare Global History with Local History across two Hindi image-captioning benchmarks.</p>
-      <div class="hero-meta"><span>● 2 DATASETS</span><span>↗ 6 METRICS</span><span>▦ 36 RECORDED RUNS</span></div></div>
-      <div class="hero-art"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orb-core">G<span>↗</span></div><div class="art-label label-a">VISION</div><div class="art-label label-b">LANGUAGE</div><div class="art-label label-c">ALIGNMENT</div></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sb-head"><div class="sb-icon">◈</div><div><div class="sb-title">GLANCE</div><div class="sb-sub">Analytics v1.0</div></div></div>
+  <nav class="sb-nav">
+    <div class="nav-grp">Overview</div>
+    <button class="nav-btn active" data-target="overview"><span class="nav-ico">📊</span>Dashboard</button>
+    <div class="nav-grp">Analysis</div>
+    <button class="nav-btn" data-target="threshold"><span class="nav-ico">🧪</span>Word Threshold</button>
+    <button class="nav-btn" data-target="history"><span class="nav-ico">🧭</span>History Comparison</button>
+    <button class="nav-btn" data-target="results"><span class="nav-ico">🎯</span>Results Explorer</button>
+  </nav>
+  <div class="sb-foot"><div class="sb-user"><div class="sb-av">GL</div><div><div class="sb-name">GLANCE Framework</div><div class="sb-role">Hindi Image Captioning</div></div></div></div>
+</aside>
+<div class="sb-overlay" id="sbOverlay" onclick="closeSb()"></div>
+<main class="main">
+  <header class="topbar"><div class="tb-left"><button class="hamburger" id="hamburger" onclick="toggleSb()"><span></span><span></span><span></span></button><div><div class="tb-title" id="pageTitle">Dashboard — Overview</div><div class="tb-sub">GLANCE · Experimental Results</div></div></div><div class="tb-right"><div class="tb-badge"><span class="live-dot"></span><span>Excel Results Loaded</span></div></div></header>
+  <div class="content">
+    <section id="overview" class="page active">
+      <div class="src-note">GLANCE framework · Word-threshold ablation and history configuration analysis · Source: GLANCE_Results.xlsx</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-ico" style="background:var(--bl);color:var(--blue)">↗</div><div><div class="kpi-lbl">Best BLEU-1</div><div class="kpi-val" id="bestBleu">—</div><div class="kpi-sub">Across recorded runs</div></div></div>
+        <div class="kpi"><div class="kpi-ico" style="background:var(--gl);color:var(--green)">✦</div><div><div class="kpi-lbl">Best METEOR</div><div class="kpi-val" id="bestMeteor">—</div><div class="kpi-sub">Across recorded runs</div></div></div>
+        <div class="kpi"><div class="kpi-ico" style="background:var(--pl);color:var(--purple)">◉</div><div><div class="kpi-lbl">Best CIDEr</div><div class="kpi-val" id="bestCider">—</div><div class="kpi-sub">Across recorded runs</div></div></div>
+        <div class="kpi"><div class="kpi-ico" style="background:var(--ol);color:var(--orange)">▦</div><div><div class="kpi-lbl">Recorded Runs</div><div class="kpi-val" id="runCount">36</div><div class="kpi-sub">Word-threshold experiments</div></div></div>
+      </div>
+      <div class="g-7-5 mb"><div class="card"><div class="sec-title"><h2>Word-threshold Ablation</h2><span class="pill blue">Thresholds 2 · 3 · 4</span></div><p class="cap-note">Mean score by vocabulary threshold for the selected metric.</p><div style="height:300px"><canvas id="thresholdChart"></canvas></div></div><div class="card"><div class="sec-title"><h2>Global vs Local History</h2><span class="pill purple">Mean Scores</span></div><p class="cap-note">Compare the selected metric across history configurations.</p><div style="height:300px"><canvas id="historyChart"></canvas></div></div></div>
+      <div class="card mb"><div class="sec-title"><h2>Evaluation Metric</h2><span class="pill cyan">Interactive</span></div><div class="tabs" id="metricButtons"><button class="tab active" data-metric="bleu1">BLEU-1</button><button class="tab" data-metric="bleu2">BLEU-2</button><button class="tab" data-metric="bleu3">BLEU-3</button><button class="tab" data-metric="bleu4">BLEU-4</button><button class="tab" data-metric="meteor">METEOR</button><button class="tab" data-metric="cider">CIDEr</button></div><div id="metricInsight" class="src-note">Select a metric to update the charts.</div></div>
     </section>
-    <section class="stats" id="stats">
-      <article class="stat-card"><div class="stat-head">BEST BLEU-1 <span>↗</span></div><div class="stat-value" id="bestBleu">—</div><div class="stat-foot">Across recorded runs</div><div class="stat-bar"><i style="width:84%"></i></div></article>
-      <article class="stat-card"><div class="stat-head">BEST METEOR <span>↗</span></div><div class="stat-value" id="bestMeteor">—</div><div class="stat-foot">Across recorded runs</div><div class="stat-bar"><i style="width:72%"></i></div></article>
-      <article class="stat-card"><div class="stat-head">BEST CIDEr <span>↗</span></div><div class="stat-value" id="bestCider">—</div><div class="stat-foot">Across recorded runs</div><div class="stat-bar"><i style="width:91%"></i></div></article>
-      <article class="stat-card accent-stat"><div class="stat-head">RECORDED RUNS <span>▦</span></div><div class="stat-value" id="runCount">36</div><div class="stat-foot">Word-threshold ablation</div><div class="stat-mini">PASCAL + Flickr</div></article>
+    <section id="threshold" class="page">
+      <div class="sec-title"><h2>Word-threshold Ablation</h2><span class="pill blue">Vocabulary Thresholds</span></div>
+      <div class="card mb"><div class="sec-title"><h2>Filter Experimental Runs</h2><span class="pill green">Live Filters</span></div><div class="g-3"><label class="sub-label">Dataset<select id="datasetFilter" class="filter-select"><option value="all">All datasets</option><option>PASCAL 1K-Hindi</option><option>Flickr 8K-Hindi</option></select></label><label class="sub-label">History<select id="historyFilter" class="filter-select"><option value="all">All history types</option><option>Global History</option><option>Local History</option></select></label><label class="sub-label">Batch size<select id="batchFilter" class="filter-select"><option value="all">All batch sizes</option><option value="32">32</option><option value="64">64</option><option value="128">128</option><option value="unknown">Not specified</option></select></label></div><div style="margin-top:12px"><button class="tb-switch" id="resetFilters">Reset Filters</button></div></div>
+      <div class="g-2 mb"><div class="card"><div class="sec-title"><h2>Threshold Score Profile</h2><span class="pill orange">Mean Metric</span></div><div style="height:280px"><canvas id="thresholdDetailChart"></canvas></div></div><div class="card"><div class="sec-title"><h2>Dataset Comparison</h2><span class="pill cyan">PASCAL vs Flickr</span></div><div style="height:280px"><canvas id="datasetChart"></canvas></div></div></div>
     </section>
-    <section class="section-head" id="analysis"><div><div class="eyebrow">01 / ABLATION ANALYSIS</div><h2>What changes the score?</h2></div><div class="section-note">Filter the experiment to compare like for like.</div></section>
-    <section class="filters">
-      <label>DATASET<select id="datasetFilter"><option value="all">All datasets</option><option>PASCAL 1K-Hindi</option><option>Flickr 8K-Hindi</option></select></label>
-      <label>HISTORY<select id="historyFilter"><option value="all">All history types</option><option>Global History</option><option>Local History</option></select></label>
-      <label>WORD THRESHOLD<select id="thresholdFilter"><option value="all">All thresholds</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label>
-      <label>BATCH SIZE<select id="batchFilter"><option value="all">All batch sizes</option><option value="32">32</option><option value="64">64</option><option value="128">128</option><option value="unknown">Not specified</option></select></label>
-      <button id="resetFilters" class="reset">↺ Reset</button>
+    <section id="history" class="page">
+      <div class="sec-title"><h2>History Configuration</h2><span class="pill purple">Global vs Local</span></div>
+      <div class="g-2 mb"><div class="card"><div class="sec-title"><h2>History Metric Comparison</h2><span class="pill green">Filtered Mean</span></div><div style="height:300px"><canvas id="historyDetailChart"></canvas></div></div><div class="card"><div class="sec-title"><h2>History Summary</h2><span class="pill blue">Current Filters</span></div><div id="historySummary" class="stat-rows"></div></div></div>
     </section>
-    <section class="chart-grid">
-      <article class="panel chart-panel"><div class="panel-top"><div><div class="panel-kicker">METRIC COMPARISON</div><h3>Scores by word threshold</h3></div><span class="panel-index">A1</span></div><p class="panel-desc">Mean score for each threshold in the selected subset.</p><div class="chart-wrap"><canvas id="thresholdChart" aria-label="Metric scores by word threshold"></canvas></div><div class="chart-legend-note">Scores are averaged across matching recorded runs.</div></article>
-      <article class="panel chart-panel"><div class="panel-top"><div><div class="panel-kicker">HISTORY COMPARISON</div><h3>Global vs. Local History</h3></div><span class="panel-index">H1</span></div><p class="panel-desc">Compare the selected metric across the two history configurations.</p><div class="chart-wrap"><canvas id="historyChart" aria-label="Mean metric scores by history configuration"></canvas></div><div class="chart-legend-note">Mean scores are calculated across the currently filtered runs.</div></article>
+    <section id="results" class="page">
+      <div class="sec-title"><h2>Results Explorer</h2><span class="pill blue" id="tableCount">36 records</span></div>
+      <div class="card mb"><div class="sec-title"><h2>Run-by-run Evaluation Log</h2><button class="tb-switch" id="downloadCsv">↓ Export Filtered CSV</button></div><div style="overflow-x:auto;max-height:600px"><table class="data-table compact" id="resultsTable"><thead><tr><th>Dataset</th><th>History</th><th>Threshold</th><th>Epoch</th><th>Batch</th><th>BLEU-1</th><th>BLEU-2</th><th>BLEU-3</th><th>BLEU-4</th><th>METEOR</th><th>CIDEr</th></tr></thead><tbody id="resultsBody"></tbody></table></div><p class="cap-note" style="margin-top:12px">Values are shown as recorded in the supplied workbook. ROUGE is omitted because the source sheet reports zero for every run.</p></div>
     </section>
-    <section class="panel metric-panel"><div class="panel-top"><div><div class="panel-kicker">METRIC SELECTOR</div><h3>Choose the evaluation lens</h3></div><span class="panel-index">A2</span></div><div class="metric-buttons" id="metricButtons">
-      <button class="metric-btn active" data-metric="bleu1">BLEU-1</button><button class="metric-btn" data-metric="bleu2">BLEU-2</button><button class="metric-btn" data-metric="bleu3">BLEU-3</button><button class="metric-btn" data-metric="bleu4">BLEU-4</button><button class="metric-btn" data-metric="meteor">METEOR</button><button class="metric-btn" data-metric="cider">CIDEr</button>
-    </div><div class="metric-insight" id="metricInsight">Select a metric to update the charts.</div></section>
-    <section class="section-head" id="results"><div><div class="eyebrow">02 / RESULTS EXPLORER</div><h2>Run-by-run detail</h2></div><div class="section-note" id="tableCount">36 records</div></section>
-    <section class="panel table-panel"><div class="table-toolbar"><div><h3>Evaluation log</h3><p>Sorted by dataset and experiment configuration.</p></div><button id="downloadCsv" class="download">↓ Export filtered CSV</button></div><div class="table-scroll"><table><thead><tr><th>DATASET</th><th>HISTORY</th><th>THRESHOLD</th><th>EPOCH</th><th>BATCH</th><th>BLEU-1</th><th>BLEU-2</th><th>BLEU-3</th><th>BLEU-4</th><th>METEOR</th><th>CIDEr</th></tr></thead><tbody id="resultsBody"></tbody></table></div><div class="table-foot">Values are shown as recorded in the supplied workbook. ROUGE is omitted from the table because the source sheet reports zero for every run.</div></section>
-    <footer><div class="footer-brand">GLANCE<span>.</span></div><div>Interactive research dashboard · Built for GitHub Pages</div><div class="footer-right">SOURCE: GLANCE_Results.xlsx</div></footer>
-  </main>
-</div>
+    <footer style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--t3);font-size:11px;padding:18px 2px"><span>GLANCE · Analytics Dashboard</span><span>Research results · GitHub Pages ready</span><span>Source: GLANCE_Results.xlsx</span></footer>
+  </div>
+</main>
 <script src="dashboard.js"></script>
 </body></html>
