@@ -1,30 +1,19 @@
 # GLANCE Analytics Dashboard
 
-A GitHub Pages-ready interactive dashboard for the GLANCE Hindi image-captioning framework. The visual theme, layout, typography, colors, navigation, cards, and table formatting reuse the original SAGE Analytics Dashboard stylesheet.
+A static, GitHub Pages-ready dashboard for the GLANCE framework.
 
-## Included analysis
-- Word-threshold ablation (thresholds 2, 3, and 4)
-- Global History vs Local History comparison
-- PASCAL 1K-Hindi and Flickr 8K-Hindi dataset comparisons
-- BLEU-1, BLEU-2, BLEU-3, BLEU-4, METEOR, and CIDEr
-- Filterable run-by-run results table and CSV export
-
-The attention-ablation section is intentionally excluded. Results are loaded from `data/glance_results.json`.
+## Contents
+- `index.html` — dashboard interface and embedded experiment data
+- `dashboard.css` — SAGE dashboard theme and layout styling
+- `dashboard.js` — charts, filters, results explorer, and CSV export
+- `data/glance_results.json` — source results exported from the supplied workbook
 
 ## Run locally
-Because the dashboard fetches JSON data, serve this folder through a local web server rather than opening `index.html` directly. For example, with Python installed:
+Open `index.html` in a browser. The results are embedded in the page, so no local server is required. Chart.js is loaded from a CDN, so charts need an internet connection; the results table and filters remain available if the CDN cannot load.
 
-```bash
-python -m http.server 8000
-```
+## Publish on GitHub Pages
+1. Upload all files and the `data` folder to the repository root.
+2. In **Settings → Pages**, select **Deploy from a branch**.
+3. Choose branch `main` and folder `/(root)`, then save.
 
-Then open `http://localhost:8000`.
-
-## Publish with GitHub Pages
-1. Upload the contents of this folder to the root of a GitHub repository.
-2. In the repository, open **Settings → Pages**.
-3. Under build and deployment, choose **Deploy from a branch**.
-4. Select branch `main` and folder `/(root)`, then save.
-5. Wait for deployment and open the Pages URL shown in settings.
-
-The dashboard uses Chart.js from a CDN; no backend is required.
+The dashboard includes word-threshold ablation, history comparison, and the results explorer. It intentionally excludes the separate attention-ablation section.

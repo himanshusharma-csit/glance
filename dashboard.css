@@ -325,6 +325,3 @@ mark.neg{color:var(--red);background:var(--rl)} mark.pos{color:var(--green);back
 .stat-rows{display:flex;flex-direction:column;gap:12px}
 .stat-big{font-size:30px;font-weight:800;line-height:1}
 .stat-cap{font-size:11px;color:var(--t3);margin-top:3px}
-/* GLANCE additions using the original SAGE theme tokens and visual language. */
-.filter-select{display:block;width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--bdr);border-radius:8px;background:var(--s2);color:var(--text);font:500 12px 'Outfit',sans-serif;}
-.src-note{font-size:11px;color:var(--t2);background:linear-gradient(90deg,var(--bl),#fff);border:1px solid var(--bdr);border-left:3px solid var(--blue);border-radius:9px;padding:11px 14px;margin-bottom:16px;line-height:1.55}

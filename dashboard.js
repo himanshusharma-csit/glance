@@ -1,9 +1,15 @@
 const METRICS={bleu1:{label:'BLEU-1',key:'bleu1'},bleu2:{label:'BLEU-2',key:'bleu2'},bleu3:{label:'BLEU-3',key:'bleu3'},bleu4:{label:'BLEU-4',key:'bleu4'},meteor:{label:'METEOR',key:'meteor'},cider:{label:'CIDEr',key:'cider'}};
 const $=id=>document.getElementById(id);let allRows=[],metric='bleu1',charts={};
 const fmt=(v,k=metric)=>v==null||!Number.isFinite(Number(v))?'—':Number(v).toFixed(k==='cider'?4:2);
-async function init(){
- try{const r=await fetch('data/glance_results.json');if(!r.ok)throw Error('data fetch failed');allRows=await r.json();}
- catch(e){$('resultsBody').innerHTML='<tr><td colspan="11">Could not load data/glance_results.json. Open this dashboard through GitHub Pages or a local web server.</td></tr>';return;}
+function init(){
+ try {
+   const embedded = $('glance-data');
+   if (!embedded) throw new Error('Embedded results are missing');
+   allRows = JSON.parse(embedded.textContent);
+ } catch(e) {
+   $('resultsBody').innerHTML='<tr><td colspan="11">Could not read the embedded results data. Please re-download the complete dashboard ZIP.</td></tr>';
+   console.error(e); return;
+ }
  allRows.forEach(r=>{r.dataset=String(r.dataset||'').trim();r.history=String(r.history||'').trim();});
  $('bestBleu').textContent=fmt(Math.max(...allRows.map(r=>Number(r.bleu1)).filter(Number.isFinite)),'bleu1');
  $('bestMeteor').textContent=fmt(Math.max(...allRows.map(r=>Number(r.meteor)).filter(Number.isFinite)),'meteor');
@@ -16,7 +22,14 @@ async function init(){
 function filtered(){return allRows.filter(r=>{const d=$('datasetFilter').value,h=$('historyFilter').value,b=$('batchFilter').value;return(d==='all'||r.dataset===d)&&(h==='all'||r.history===h)&&(b==='all'||(b==='unknown'?(r.batch==null):(String(r.batch)===b)));});}
 function avg(rows,key){const a=rows.map(r=>Number(r[key])).filter(Number.isFinite);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null;}
 function baseOptions(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,font:{family:'Outfit',size:11}}},tooltip:{backgroundColor:'#1e2340',padding:10}},scales:{x:{grid:{display:false},ticks:{font:{family:'Outfit',size:10},color:'#8892b0'},border:{display:false}},y:{beginAtZero:true,grid:{color:'#edf0f7'},ticks:{font:{family:'Space Mono',size:10},color:'#8892b0'},border:{display:false}}}};}
-function makeChart(id,type,data,options={}){if(charts[id])charts[id].destroy();charts[id]=new Chart($(id),{type,data,options:{...baseOptions(),...options}});}
+function makeChart(id,type,data,options={}){
+ if (typeof Chart === 'undefined') {
+   const canvas=$(id); if(canvas){const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);ctx.font='14px sans-serif';ctx.fillStyle='#4b5580';ctx.fillText('Charts require an internet connection to load Chart.js.',12,28);}
+   return;
+ }
+ if(charts[id])charts[id].destroy();
+ charts[id]=new Chart($(id),{type,data,options:{...baseOptions(),...options}});
+}
 function render(){const rows=filtered();$('tableCount').textContent=`${rows.length} records`;drawTable(rows);drawCharts(rows);drawInsight(rows);drawHistorySummary(rows);}
 function drawCharts(rows){const ts=[2,3,4],hs=['Global History','Local History'],colors=['#2563eb','#7c3aed','#059669','#d97706'];const key=METRICS[metric].key;
  const thresholdSets=hs.map((h,i)=>({label:h,data:ts.map(t=>avg(rows.filter(r=>r.threshold===t&&r.history===h),key)),backgroundColor:i?'#7c3aed':'#2563eb',borderRadius:5,maxBarThickness:35}));
