@@ -325,3 +325,7 @@ mark.neg{color:var(--red);background:var(--rl)} mark.pos{color:var(--green);back
 .stat-rows{display:flex;flex-direction:column;gap:12px}
 .stat-big{font-size:30px;font-weight:800;line-height:1}
 .stat-cap{font-size:11px;color:var(--t3);margin-top:3px}
+/* Four-column filter row; inherits the original SAGE spacing and responsive system. */
+.g-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-bottom:18px}
+@media(max-width:1100px){.g-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.g-4{grid-template-columns:1fr;gap:14px}}
