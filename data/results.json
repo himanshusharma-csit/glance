@@ -1,0 +1,810 @@
+{
+ "project": "GLANCE",
+ "title": "Global-Local Attention Network for Cross-modal Alignment in Hindi Image Captioning",
+ "exported": "2026-10-17 11:42",
+ "source_file": "GLANCE_Results.xlsx",
+ "metrics": [
+  "BLEU-1",
+  "BLEU-2",
+  "BLEU-3",
+  "BLEU-4",
+  "METEOR",
+  "ROUGE",
+  "CIDEr"
+ ],
+ "invalid_metrics": [
+  "ROUGE"
+ ],
+ "attention": {
+  "local": {
+   "model": "GLANCE-W",
+   "label": "Local (word query)"
+  },
+  "global": {
+   "model": "GLANCE-WH",
+   "label": "Global (word + hidden query)"
+  }
+ },
+ "datasets": [
+  {
+   "key": "pascal",
+   "name": "PASCAL 1K-Hindi",
+   "short": "PASCAL",
+   "images": "1,000 images",
+   "n_runs": 18,
+   "thresholds": [
+    2,
+    3,
+    4
+   ],
+   "batches": [
+    32,
+    64,
+    128
+   ],
+   "availability": {
+    "threshold_ablation": true,
+    "both_attentions": true,
+    "attention_ablation": false,
+    "baselines": false
+   }
+  },
+  {
+   "key": "flickr",
+   "name": "Flickr 8K-Hindi",
+   "short": "Flickr",
+   "images": "8,000 images",
+   "n_runs": 18,
+   "thresholds": [
+    2,
+    3,
+    4
+   ],
+   "batches": [
+    32,
+    64,
+    128
+   ],
+   "availability": {
+    "threshold_ablation": true,
+    "both_attentions": true,
+    "attention_ablation": false,
+    "baselines": false
+   }
+  }
+ ],
+ "runs": [
+  {
+   "dataset": "pascal",
+   "attention": "global",
+   "threshold": 2,
+   "batch": 32,
+   "epoch": 11,
+   "metrics": {
+    "BLEU-1": 45.94028,
+    "BLEU-2": 21.71392,
+    "BLEU-3": 9.99577,
+    "BLEU-4": 6.44427,
+    "METEOR": 21.49545,
+    "ROUGE": 0.0,
+    "CIDEr": 0.1787
+   },
+   "row": 3
+  },
+  {
+   "dataset": "pascal",
+   "attention": "global",
+   "threshold": 2,
+   "batch": 64,
+   "epoch": 11,
+   "metrics": {
+    "BLEU-1": 47.62726,
+    "BLEU-2": 20.60724,
+    "BLEU-3": 9.86016,
+    "BLEU-4": 6.49112,
+    "METEOR": 21.35724,
+    "ROUGE": 0.0,
+    "CIDEr": 0.17795
+   },
+   "row": 4
+  },
+  {
+   "dataset": "pascal",
+   "attention": "global",
+   "threshold": 2,
+   "batch": 128,
+   "epoch": 27,
+   "metrics": {
+    "BLEU-1": 46.17642,
+    "BLEU-2": 20.66155,
+    "BLEU-3": 10.15572,
+    "BLEU-4": 6.77063,
+    "METEOR": 21.1546,
+    "ROUGE": 0.0,
+    "CIDEr": 0.1711
+   },
+   "row": 5
+  },
+  {
+   "dataset": "pascal",
+   "attention": "global",
+   "threshold": 3,
+   "batch": 32,
+   "epoch": 7,
+   "metrics": {
+    "BLEU-1": 48.42633,
+    "BLEU-2": 23.17621,
+    "BLEU-3": 12.58136,
+    "BLEU-4": 8.34176,
+    "METEOR": 21.59066,
+    "ROUGE": 0.0,
+    "CIDEr": 0.18908
+   },
+   "row": 6
+  },
+  {
+   "dataset": "pascal",
+   "attention": "global",
+   "threshold": 3,
+   "batch": 64,
+   "epoch": 19,
+   "metrics": {
+    "BLEU-1": 47.06327,
+    "BLEU-2": 21.72207,
+    "BLEU-3": 10.2074,
+    "BLEU-4": 6.93498,
+    "METEOR": 21.14499,
+    "ROUGE": 0.0,
+    "CIDEr": 0.16561
+   },
+   "row": 7
+  },
+  {
+   "dataset": "pascal",
+   "attention": "global",
+   "threshold": 3,
+   "batch": 128,
+   "epoch": 30,
+   "metrics": {
+    "BLEU-1": 45.94823,
+    "BLEU-2": 20.77739,
+    "BLEU-3": 10.113,
+    "BLEU-4": 6.57331,
+    "METEOR": 21.73494,
+    "ROUGE": 0.0,
+    "CIDEr": 0.17906
+   },
+   "row": 8
+  },
+  {
+   "dataset": "pascal",
+   "attention": "global",
+   "threshold": 4,
+   "batch": 32,
+   "epoch": 26,
+   "metrics": {
+    "BLEU-1": 39.63566,
+    "BLEU-2": 15.94755,
+    "BLEU-3": 8.11795,
+    "BLEU-4": 5.60501,
+    "METEOR": 17.70941,
+    "ROUGE": 0.0,
+    "CIDEr": 0.14702
+   },
+   "row": 9
+  },
+  {
+   "dataset": "pascal",
+   "attention": "global",
+   "threshold": 4,
+   "batch": 64,
+   "epoch": 17,
+   "metrics": {
+    "BLEU-1": 43.57834,
+    "BLEU-2": 19.66662,
+    "BLEU-3": 10.21462,
+    "BLEU-4": 7.02399,
+    "METEOR": 19.93067,
+    "ROUGE": 0.0,
+    "CIDEr": 0.15659
+   },
+   "row": 10
+  },
+  {
+   "dataset": "pascal",
+   "attention": "global",
+   "threshold": 4,
+   "batch": 128,
+   "epoch": 12,
+   "metrics": {
+    "BLEU-1": 47.4134,
+    "BLEU-2": 24.22507,
+    "BLEU-3": 12.23269,
+    "BLEU-4": 7.58226,
+    "METEOR": 22.06107,
+    "ROUGE": 0.0,
+    "CIDEr": 0.19194
+   },
+   "row": 11
+  },
+  {
+   "dataset": "pascal",
+   "attention": "local",
+   "threshold": 2,
+   "batch": 32,
+   "epoch": 7,
+   "metrics": {
+    "BLEU-1": 48.85613,
+    "BLEU-2": 23.1465,
+    "BLEU-3": 11.78556,
+    "BLEU-4": 8.21103,
+    "METEOR": 21.53966,
+    "ROUGE": 0.0,
+    "CIDEr": 0.18426
+   },
+   "row": 13
+  },
+  {
+   "dataset": "pascal",
+   "attention": "local",
+   "threshold": 2,
+   "batch": 64,
+   "epoch": 25,
+   "metrics": {
+    "BLEU-1": 45.30494,
+    "BLEU-2": 20.84844,
+    "BLEU-3": 10.08682,
+    "BLEU-4": 6.88384,
+    "METEOR": 21.58505,
+    "ROUGE": 0.0,
+    "CIDEr": 0.1621
+   },
+   "row": 14
+  },
+  {
+   "dataset": "pascal",
+   "attention": "local",
+   "threshold": 2,
+   "batch": 128,
+   "epoch": 25,
+   "metrics": {
+    "BLEU-1": 44.23705,
+    "BLEU-2": 21.59396,
+    "BLEU-3": 10.75417,
+    "BLEU-4": 7.1494,
+    "METEOR": 19.94481,
+    "ROUGE": 0.0,
+    "CIDEr": 0.17739
+   },
+   "row": 15
+  },
+  {
+   "dataset": "pascal",
+   "attention": "local",
+   "threshold": 3,
+   "batch": 32,
+   "epoch": 8,
+   "metrics": {
+    "BLEU-1": 47.37299,
+    "BLEU-2": 23.53865,
+    "BLEU-3": 13.57035,
+    "BLEU-4": 9.19302,
+    "METEOR": 23.72018,
+    "ROUGE": 0.0,
+    "CIDEr": 0.18887
+   },
+   "row": 16
+  },
+  {
+   "dataset": "pascal",
+   "attention": "local",
+   "threshold": 3,
+   "batch": 64,
+   "epoch": 9,
+   "metrics": {
+    "BLEU-1": 44.78727,
+    "BLEU-2": 21.09814,
+    "BLEU-3": 11.20184,
+    "BLEU-4": 7.14321,
+    "METEOR": 23.1805,
+    "ROUGE": 0.0,
+    "CIDEr": 0.17483
+   },
+   "row": 17
+  },
+  {
+   "dataset": "pascal",
+   "attention": "local",
+   "threshold": 3,
+   "batch": 128,
+   "epoch": 15,
+   "metrics": {
+    "BLEU-1": 47.53126,
+    "BLEU-2": 25.53472,
+    "BLEU-3": 14.59604,
+    "BLEU-4": 9.04298,
+    "METEOR": 24.69628,
+    "ROUGE": 0.0,
+    "CIDEr": 0.20931
+   },
+   "row": 18
+  },
+  {
+   "dataset": "pascal",
+   "attention": "local",
+   "threshold": 4,
+   "batch": 32,
+   "epoch": 5,
+   "metrics": {
+    "BLEU-1": 46.41207,
+    "BLEU-2": 22.81699,
+    "BLEU-3": 13.68408,
+    "BLEU-4": 8.6432,
+    "METEOR": 23.57021,
+    "ROUGE": 0.0,
+    "CIDEr": 0.1884
+   },
+   "row": 19
+  },
+  {
+   "dataset": "pascal",
+   "attention": "local",
+   "threshold": 4,
+   "batch": 64,
+   "epoch": 16,
+   "metrics": {
+    "BLEU-1": 47.40587,
+    "BLEU-2": 25.48474,
+    "BLEU-3": 14.22954,
+    "BLEU-4": 8.96905,
+    "METEOR": 26.22893,
+    "ROUGE": 0.0,
+    "CIDEr": 0.21177
+   },
+   "row": 20
+  },
+  {
+   "dataset": "pascal",
+   "attention": "local",
+   "threshold": 4,
+   "batch": 128,
+   "epoch": 26,
+   "metrics": {
+    "BLEU-1": 48.68407,
+    "BLEU-2": 25.13596,
+    "BLEU-3": 13.87615,
+    "BLEU-4": 8.66186,
+    "METEOR": 25.36097,
+    "ROUGE": 0.0,
+    "CIDEr": 0.22629
+   },
+   "row": 21
+  },
+  {
+   "dataset": "flickr",
+   "attention": "global",
+   "threshold": 2,
+   "batch": 32,
+   "epoch": 6,
+   "metrics": {
+    "BLEU-1": 58.872033,
+    "BLEU-2": 39.04352,
+    "BLEU-3": 25.622258,
+    "BLEU-4": 18.086239,
+    "METEOR": 36.187609,
+    "ROUGE": 0.0,
+    "CIDEr": 0.334075
+   },
+   "row": 23
+  },
+  {
+   "dataset": "flickr",
+   "attention": "global",
+   "threshold": 2,
+   "batch": 64,
+   "epoch": 10,
+   "metrics": {
+    "BLEU-1": 60.906218,
+    "BLEU-2": 41.258098,
+    "BLEU-3": 27.502392,
+    "BLEU-4": 19.365007,
+    "METEOR": 38.191677,
+    "ROUGE": 0.0,
+    "CIDEr": 0.360148
+   },
+   "row": 24
+  },
+  {
+   "dataset": "flickr",
+   "attention": "global",
+   "threshold": 2,
+   "batch": 128,
+   "epoch": 9,
+   "metrics": {
+    "BLEU-1": 59.932618,
+    "BLEU-2": 41.022168,
+    "BLEU-3": 27.99801,
+    "BLEU-4": 19.859801,
+    "METEOR": 37.766637,
+    "ROUGE": 0.0,
+    "CIDEr": 0.357831
+   },
+   "row": 25
+  },
+  {
+   "dataset": "flickr",
+   "attention": "global",
+   "threshold": 3,
+   "batch": 32,
+   "epoch": 6,
+   "metrics": {
+    "BLEU-1": 57.5944,
+    "BLEU-2": 37.3258,
+    "BLEU-3": 24.5367,
+    "BLEU-4": 17.0468,
+    "METEOR": 34.9689,
+    "ROUGE": 0.0,
+    "CIDEr": 0.31666
+   },
+   "row": 26
+  },
+  {
+   "dataset": "flickr",
+   "attention": "global",
+   "threshold": 3,
+   "batch": 64,
+   "epoch": 3,
+   "metrics": {
+    "BLEU-1": 59.509146,
+    "BLEU-2": 40.297785,
+    "BLEU-3": 27.295268,
+    "BLEU-4": 19.358645,
+    "METEOR": 36.656006,
+    "ROUGE": 0.0,
+    "CIDEr": 0.346658
+   },
+   "row": 27
+  },
+  {
+   "dataset": "flickr",
+   "attention": "global",
+   "threshold": 3,
+   "batch": 128,
+   "epoch": 9,
+   "metrics": {
+    "BLEU-1": 60.821703,
+    "BLEU-2": 41.670188,
+    "BLEU-3": 28.248462,
+    "BLEU-4": 20.185745,
+    "METEOR": 38.083152,
+    "ROUGE": 0.0,
+    "CIDEr": 0.36268
+   },
+   "row": 28
+  },
+  {
+   "dataset": "flickr",
+   "attention": "global",
+   "threshold": 4,
+   "batch": 32,
+   "epoch": 2,
+   "metrics": {
+    "BLEU-1": 58.991093,
+    "BLEU-2": 39.304759,
+    "BLEU-3": 26.005127,
+    "BLEU-4": 17.679514,
+    "METEOR": 36.110972,
+    "ROUGE": 0.0,
+    "CIDEr": 0.328015
+   },
+   "row": 29
+  },
+  {
+   "dataset": "flickr",
+   "attention": "global",
+   "threshold": 4,
+   "batch": 64,
+   "epoch": 2,
+   "metrics": {
+    "BLEU-1": 58.9747,
+    "BLEU-2": 39.2879,
+    "BLEU-3": 26.351,
+    "BLEU-4": 18.4913,
+    "METEOR": 36.1801,
+    "ROUGE": 0.0,
+    "CIDEr": 0.33833
+   },
+   "row": 30
+  },
+  {
+   "dataset": "flickr",
+   "attention": "global",
+   "threshold": 4,
+   "batch": 128,
+   "epoch": 2,
+   "metrics": {
+    "BLEU-1": 59.4891,
+    "BLEU-2": 40.0549,
+    "BLEU-3": 27.0674,
+    "BLEU-4": 19.0498,
+    "METEOR": 36.7196,
+    "ROUGE": 0.0,
+    "CIDEr": 0.34825
+   },
+   "row": 31
+  },
+  {
+   "dataset": "flickr",
+   "attention": "local",
+   "threshold": 2,
+   "batch": 32,
+   "epoch": 7,
+   "metrics": {
+    "BLEU-1": 59.494859,
+    "BLEU-2": 39.340261,
+    "BLEU-3": 25.959049,
+    "BLEU-4": 18.272054,
+    "METEOR": 36.278518,
+    "ROUGE": 0.0,
+    "CIDEr": 0.337583
+   },
+   "row": 33
+  },
+  {
+   "dataset": "flickr",
+   "attention": "local",
+   "threshold": 2,
+   "batch": 64,
+   "epoch": 4,
+   "metrics": {
+    "BLEU-1": 60.262187,
+    "BLEU-2": 40.669603,
+    "BLEU-3": 27.703943,
+    "BLEU-4": 19.350845,
+    "METEOR": 37.642266,
+    "ROUGE": 0.0,
+    "CIDEr": 0.355307
+   },
+   "row": 34
+  },
+  {
+   "dataset": "flickr",
+   "attention": "local",
+   "threshold": 2,
+   "batch": 128,
+   "epoch": 7,
+   "metrics": {
+    "BLEU-1": 59.798387,
+    "BLEU-2": 40.806383,
+    "BLEU-3": 27.60074,
+    "BLEU-4": 19.451539,
+    "METEOR": 37.218274,
+    "ROUGE": 0.0,
+    "CIDEr": 0.349717
+   },
+   "row": 35
+  },
+  {
+   "dataset": "flickr",
+   "attention": "local",
+   "threshold": 3,
+   "batch": 32,
+   "epoch": 39,
+   "metrics": {
+    "BLEU-1": 55.17136,
+    "BLEU-2": 34.88794,
+    "BLEU-3": 22.20069,
+    "BLEU-4": 15.51428,
+    "METEOR": 34.48362,
+    "ROUGE": 0.0,
+    "CIDEr": 0.296171
+   },
+   "row": 36
+  },
+  {
+   "dataset": "flickr",
+   "attention": "local",
+   "threshold": 3,
+   "batch": 64,
+   "epoch": 5,
+   "metrics": {
+    "BLEU-1": 60.28852,
+    "BLEU-2": 41.03362,
+    "BLEU-3": 27.79292,
+    "BLEU-4": 19.45736,
+    "METEOR": 37.42195,
+    "ROUGE": 0.0,
+    "CIDEr": 0.350858
+   },
+   "row": 37
+  },
+  {
+   "dataset": "flickr",
+   "attention": "local",
+   "threshold": 3,
+   "batch": 128,
+   "epoch": 10,
+   "metrics": {
+    "BLEU-1": 60.637027,
+    "BLEU-2": 41.098508,
+    "BLEU-3": 27.717147,
+    "BLEU-4": 19.695993,
+    "METEOR": 37.896384,
+    "ROUGE": 0.0,
+    "CIDEr": 0.369408
+   },
+   "row": 38
+  },
+  {
+   "dataset": "flickr",
+   "attention": "local",
+   "threshold": 4,
+   "batch": 32,
+   "epoch": 3,
+   "metrics": {
+    "BLEU-1": 59.397975,
+    "BLEU-2": 39.619602,
+    "BLEU-3": 26.608789,
+    "BLEU-4": 18.726482,
+    "METEOR": 36.589347,
+    "ROUGE": 0.0,
+    "CIDEr": 0.334686
+   },
+   "row": 39
+  },
+  {
+   "dataset": "flickr",
+   "attention": "local",
+   "threshold": 4,
+   "batch": 64,
+   "epoch": 6,
+   "metrics": {
+    "BLEU-1": 59.45837,
+    "BLEU-2": 39.645046,
+    "BLEU-3": 26.524739,
+    "BLEU-4": 18.468467,
+    "METEOR": 36.985682,
+    "ROUGE": 0.0,
+    "CIDEr": 0.343436
+   },
+   "row": 40
+  },
+  {
+   "dataset": "flickr",
+   "attention": "local",
+   "threshold": 4,
+   "batch": 128,
+   "epoch": 5,
+   "metrics": {
+    "BLEU-1": 59.4927,
+    "BLEU-2": 40.1583,
+    "BLEU-3": 27.0267,
+    "BLEU-4": 18.9467,
+    "METEOR": 36.9209,
+    "ROUGE": 0.0,
+    "CIDEr": 0.34908
+   },
+   "row": 41
+  }
+ ],
+ "attention_ablation": {
+  "columns": [
+   "Word Threshold",
+   "Attention",
+   "Batch Size",
+   "BLEU-1",
+   "BLEU-2",
+   "BLEU-3",
+   "BLEU-4",
+   "METEOR",
+   "CIDEr"
+  ],
+  "rows": [
+   {
+    "Word Threshold": null,
+    "Attention": 2,
+    "Batch Size": 32,
+    "BLEU-1": null,
+    "BLEU-2": null,
+    "BLEU-3": null,
+    "BLEU-4": null,
+    "METEOR": null,
+    "CIDEr": null
+   },
+   {
+    "Word Threshold": null,
+    "Attention": 2,
+    "Batch Size": 64,
+    "BLEU-1": null,
+    "BLEU-2": null,
+    "BLEU-3": null,
+    "BLEU-4": null,
+    "METEOR": null,
+    "CIDEr": null
+   },
+   {
+    "Word Threshold": null,
+    "Attention": 2,
+    "Batch Size": 128,
+    "BLEU-1": null,
+    "BLEU-2": null,
+    "BLEU-3": null,
+    "BLEU-4": null,
+    "METEOR": null,
+    "CIDEr": null
+   },
+   {
+    "Word Threshold": null,
+    "Attention": 3,
+    "Batch Size": 32,
+    "BLEU-1": null,
+    "BLEU-2": null,
+    "BLEU-3": null,
+    "BLEU-4": null,
+    "METEOR": null,
+    "CIDEr": null
+   },
+   {
+    "Word Threshold": null,
+    "Attention": 3,
+    "Batch Size": 64,
+    "BLEU-1": null,
+    "BLEU-2": null,
+    "BLEU-3": null,
+    "BLEU-4": null,
+    "METEOR": null,
+    "CIDEr": null
+   },
+   {
+    "Word Threshold": null,
+    "Attention": 3,
+    "Batch Size": 128,
+    "BLEU-1": null,
+    "BLEU-2": null,
+    "BLEU-3": null,
+    "BLEU-4": null,
+    "METEOR": null,
+    "CIDEr": null
+   },
+   {
+    "Word Threshold": null,
+    "Attention": 4,
+    "Batch Size": 32,
+    "BLEU-1": null,
+    "BLEU-2": null,
+    "BLEU-3": null,
+    "BLEU-4": null,
+    "METEOR": null,
+    "CIDEr": null
+   },
+   {
+    "Word Threshold": null,
+    "Attention": 4,
+    "Batch Size": 64,
+    "BLEU-1": null,
+    "BLEU-2": null,
+    "BLEU-3": null,
+    "BLEU-4": null,
+    "METEOR": null,
+    "CIDEr": null
+   },
+   {
+    "Word Threshold": null,
+    "Attention": 4,
+    "Batch Size": 128,
+    "BLEU-1": null,
+    "BLEU-2": null,
+    "BLEU-3": null,
+    "BLEU-4": null,
+    "METEOR": null,
+    "CIDEr": null
+   }
+  ],
+  "filled": false
+ },
+ "baselines": [],
+ "notes": [
+  "Row 41 (Flickr, GLANCE-W, threshold 4): batch size empty in the workbook — inferred as 128 from row order",
+  "ROUGE is 0 or empty in every run — treated as not computed and kept out of charts"
+ ]
+}
