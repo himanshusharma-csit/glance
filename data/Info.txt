@@ -1,1 +1,1 @@
-This folder contains the bath results.
+This folder contains the bath results and the dataset splits used during the training on both the PASCAL 1K-Hindi and Flickr 8K-Hindi.
