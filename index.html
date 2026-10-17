@@ -1,58 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="GLANCE Hindi image-captioning framework results dashboard.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GLANCE · Analytics Dashboard</title>
 <link rel="stylesheet" href="dashboard.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
+
+<!-- DATASET SELECTOR MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-logo">👁️</div>
+    <h2 class="modal-title">GLANCE Analytics Dashboard</h2>
+    <p class="modal-sub">Global-Local Attention Network for Cross-modal Alignment · Hindi image captioning. Select a dataset to visualise its results.</p>
+
+    <div class="repo-strip">
+      <span>🔗</span>
+      <span class="repo-name" id="repoName">himanshusharma-csit / glance</span>
+      <span class="repo-folder">📁 data/</span>
+    </div>
+
+    <div class="status-bar" id="statusBar">
+      <div class="status-spinner" id="statusSpinner"></div>
+      <span id="statusText">Loading results…</span>
+    </div>
+
+    <div class="fetch-prog" id="fetchProgress"><div class="fetch-prog-bar" id="fetchProgressBar"></div></div>
+    <div class="batch-list" id="batchList"></div>
+    <div id="extraInfo"></div>
+
+    <div class="modal-footer">
+      <span class="footer-note">● threshold ablation · local &amp; global · attention ablation · baselines</span>
+      <button class="btn-load" id="btnLoad" onclick="loadSelected()" disabled>Open Dashboard →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
-  <div class="sb-head"><div class="sb-icon">◈</div><div><div class="sb-title">GLANCE</div><div class="sb-sub">Analytics v1.0</div></div></div>
+  <div class="sb-head">
+    <div class="sb-icon">👁️</div>
+    <div>
+      <div class="sb-title">GLANCE</div>
+      <div class="sb-sub">Analytics v1.0</div>
+    </div>
+  </div>
   <nav class="sb-nav">
     <div class="nav-grp">Overview</div>
-    <button class="nav-btn active" data-target="overview"><span class="nav-ico">📊</span>Dashboard</button>
+    <button class="nav-btn active" onclick="goPage('dashboard',this)"><span class="nav-ico">📊</span>Dashboard</button>
     <div class="nav-grp">Analysis</div>
-    <button class="nav-btn" data-target="threshold"><span class="nav-ico">🧪</span>Word Threshold</button>
-    <button class="nav-btn" data-target="history"><span class="nav-ico">🧭</span>History Comparison</button>
-    <button class="nav-btn" data-target="results"><span class="nav-ico">🎯</span>Results Explorer</button>
+    <button class="nav-btn" onclick="goPage('explorer',this)"><span class="nav-ico">🧪</span>Ablation Explorer</button>
+    <button class="nav-btn" onclick="goPage('attention',this)"><span class="nav-ico">🔍</span>Local vs Global</button>
+    <button class="nav-btn" onclick="goPage('factors',this)"><span class="nav-ico">📈</span>Factor Effects</button>
+    <button class="nav-btn" onclick="goPage('table',this)"><span class="nav-ico">📋</span>Results Table</button>
+    <div class="nav-grp">Project</div>
+    <button class="nav-btn" onclick="goPage('compare',this)"><span class="nav-ico">⚖️</span>Dataset Comparison</button>
+    <button class="nav-btn" onclick="goPage('insights',this)"><span class="nav-ico">💡</span>Insights</button>
   </nav>
-  <div class="sb-foot"><div class="sb-user"><div class="sb-av">GL</div><div><div class="sb-name">GLANCE Framework</div><div class="sb-role">Hindi Image Captioning</div></div></div></div>
-</aside>
-<div class="sb-overlay" id="sbOverlay" onclick="closeSb()"></div>
-<main class="main">
-  <header class="topbar"><div class="tb-left"><button class="hamburger" id="hamburger" onclick="toggleSb()"><span></span><span></span><span></span></button><div><div class="tb-title" id="pageTitle">Dashboard — Overview</div><div class="tb-sub">GLANCE · Experimental Results</div></div></div><div class="tb-right"><div class="tb-badge"><span class="live-dot"></span><span>Excel Results Loaded</span></div></div></header>
-  <div class="content">
-    <section id="overview" class="page active">
-      <div class="src-note">GLANCE framework · Word-threshold ablation and history configuration analysis · Source: GLANCE_Results.xlsx</div>
-      <div class="kpi-grid">
-        <div class="kpi"><div class="kpi-ico" style="background:var(--bl);color:var(--blue)">↗</div><div><div class="kpi-lbl">Best BLEU-1</div><div class="kpi-val" id="bestBleu">—</div><div class="kpi-sub">Across recorded runs</div></div></div>
-        <div class="kpi"><div class="kpi-ico" style="background:var(--gl);color:var(--green)">✦</div><div><div class="kpi-lbl">Best METEOR</div><div class="kpi-val" id="bestMeteor">—</div><div class="kpi-sub">Across recorded runs</div></div></div>
-        <div class="kpi"><div class="kpi-ico" style="background:var(--pl);color:var(--purple)">◉</div><div><div class="kpi-lbl">Best CIDEr</div><div class="kpi-val" id="bestCider">—</div><div class="kpi-sub">Across recorded runs</div></div></div>
-        <div class="kpi"><div class="kpi-ico" style="background:var(--ol);color:var(--orange)">▦</div><div><div class="kpi-lbl">Recorded Runs</div><div class="kpi-val" id="runCount">36</div><div class="kpi-sub">Word-threshold experiments</div></div></div>
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-av">HS</div>
+      <div>
+        <a href="https://www.linkedin.com/in/dr-himanshusharma/" target="_blank" class="sb-name">Dr. Himanshu Sharma</a>
+        <div class="sb-role">Researcher · NLP &amp; Vision</div>
       </div>
-      <div class="g-7-5 mb"><div class="card"><div class="sec-title"><h2>Word-threshold Ablation</h2><span class="pill blue">Thresholds 2 · 3 · 4</span></div><p class="cap-note">Mean score by vocabulary threshold for the selected metric.</p><div style="height:300px"><canvas id="thresholdChart"></canvas></div></div><div class="card"><div class="sec-title"><h2>Global vs Local History</h2><span class="pill purple">Mean Scores</span></div><p class="cap-note">Compare the selected metric across history configurations.</p><div style="height:300px"><canvas id="historyChart"></canvas></div></div></div>
-      <div class="card mb"><div class="sec-title"><h2>Evaluation Metric</h2><span class="pill cyan">Interactive</span></div><div class="tabs" id="metricButtons"><button class="tab active" data-metric="bleu1">BLEU-1</button><button class="tab" data-metric="bleu2">BLEU-2</button><button class="tab" data-metric="bleu3">BLEU-3</button><button class="tab" data-metric="bleu4">BLEU-4</button><button class="tab" data-metric="meteor">METEOR</button><button class="tab" data-metric="cider">CIDEr</button></div><div id="metricInsight" class="src-note">Select a metric to update the charts.</div></div>
-    </section>
-    <section id="threshold" class="page">
-      <div class="sec-title"><h2>Word-threshold Ablation</h2><span class="pill blue">Vocabulary Thresholds</span></div>
-      <div class="card mb"><div class="sec-title"><h2>Filter Experimental Runs</h2><span class="pill green">Live Filters</span></div><div class="g-4"><label class="sub-label">Dataset<select id="datasetFilter" class="filter-select"><option value="all">All datasets</option><option>PASCAL 1K-Hindi</option><option>Flickr 8K-Hindi</option></select></label><label class="sub-label">History<select id="historyFilter" class="filter-select"><option value="all">All history types</option><option>Global History</option><option>Local History</option></select></label><label class="sub-label">Word threshold<select id="thresholdFilter" class="filter-select"><option value="all">All thresholds</option><option value="2">Threshold 2</option><option value="3">Threshold 3</option><option value="4">Threshold 4</option></select></label><label class="sub-label">Batch size<select id="batchFilter" class="filter-select"><option value="all">All batch sizes</option><option value="32">32</option><option value="64">64</option><option value="128">128</option><option value="unknown">Not specified</option></select></label></div><div style="margin-top:12px"><button class="tb-switch" id="resetFilters">Reset Filters</button></div></div>
-      <div class="g-2 mb"><div class="card"><div class="sec-title"><h2>Threshold Score Profile</h2><span class="pill orange">Mean Metric</span></div><div style="height:280px"><canvas id="thresholdDetailChart"></canvas></div></div><div class="card"><div class="sec-title"><h2>Dataset Comparison</h2><span class="pill cyan">PASCAL vs Flickr</span></div><div style="height:280px"><canvas id="datasetChart"></canvas></div></div></div>
-      <div class="card mb"><div class="sec-title"><h2>Dataset-wise Metric Summary</h2><span class="pill green">Filtered Mean Scores</span></div><p class="cap-note">Each row summarizes only the runs that match the active dataset, history, threshold, and batch filters.</p><div style="overflow-x:auto"><table class="data-table compact"><thead><tr><th>Dataset</th><th>Runs</th><th>BLEU-1</th><th>BLEU-2</th><th>BLEU-3</th><th>BLEU-4</th><th>METEOR</th><th>CIDEr</th><th>Best Threshold</th></tr></thead><tbody id="datasetSummaryBody"></tbody></table></div></div>
-    </section>
-    <section id="history" class="page">
-      <div class="sec-title"><h2>History Configuration</h2><span class="pill purple">Global vs Local</span></div>
-      <div class="g-2 mb"><div class="card"><div class="sec-title"><h2>History Metric Comparison</h2><span class="pill green">Filtered Mean</span></div><div style="height:300px"><canvas id="historyDetailChart"></canvas></div></div><div class="card"><div class="sec-title"><h2>History Summary</h2><span class="pill blue">Current Filters</span></div><div id="historySummary" class="stat-rows"></div></div></div>
-      <div class="card mb"><div class="sec-title"><h2>Dataset × History Comparison</h2><span class="pill cyan">Grouped Mean Scores</span></div><p class="cap-note">Compare Global and Local History independently on each dataset using the selected evaluation metric.</p><div style="height:300px"><canvas id="datasetHistoryChart"></canvas></div></div>
-    </section>
-    <section id="results" class="page">
-      <div class="sec-title"><h2>Results Explorer</h2><span class="pill blue" id="tableCount">36 records</span></div>
-      <div class="card mb"><div class="sec-title"><h2>Run-by-run Evaluation Log</h2><button class="tb-switch" id="downloadCsv">↓ Export Filtered CSV</button></div><div style="overflow-x:auto;max-height:600px"><table class="data-table compact" id="resultsTable"><thead><tr><th>Dataset</th><th>History</th><th>Threshold</th><th>Epoch</th><th>Batch</th><th>BLEU-1</th><th>BLEU-2</th><th>BLEU-3</th><th>BLEU-4</th><th>METEOR</th><th>CIDEr</th></tr></thead><tbody id="resultsBody"></tbody></table></div><p class="cap-note" style="margin-top:12px">Values are shown as recorded in the supplied workbook. ROUGE is omitted because the source sheet reports zero for every run.</p></div>
-    </section>
-    <footer style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--t3);font-size:11px;padding:18px 2px"><span>GLANCE · Analytics Dashboard</span><span>Research results · GitHub Pages ready</span><span>Source: GLANCE_Results.xlsx</span></footer>
+    </div>
+  </div>
+</aside>
+
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sb-overlay" id="sbOverlay" onclick="closeSb()"></div>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="tb-left">
+      <button class="hamburger" id="hamburger" onclick="toggleSb()"><span></span><span></span><span></span></button>
+      <div>
+        <div class="tb-title" id="pageTitle">Dashboard — Overview</div>
+        <div class="tb-sub" id="dsLabel">Loading…</div>
+      </div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-badge"><span class="live-dot"></span><span id="cpBadge">Best Configuration</span></div>
+      <button class="tb-switch" onclick="openModal()">Switch Dataset</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="src-note" id="srcNote"></div>
+      <div class="kpi-grid" id="kpiGrid"></div>
+      <div class="g-7-5 mb">
+        <div class="card" style="display:flex;flex-direction:column"><div class="sec-title"><h2>Best Configuration per Attention Variant</h2><span class="pill blue">Test · selected on CIDEr</span></div><div style="flex:1;min-height:300px"><canvas id="c-bestBar" style="width:100%;height:100%"></canvas></div></div>
+        <div class="card" style="display:flex;flex-direction:column"><div class="sec-title"><h2>Performance Radar</h2><span class="pill purple">Best run of each variant</span></div><div style="flex:1;min-height:300px"><canvas id="c-radar" style="width:100%;height:100%"></canvas></div></div>
+      </div>
+      <div class="g-7-5 mb">
+        <div class="card" style="display:flex;flex-direction:column"><div class="sec-title"><h2>CIDEr across All Configurations</h2><span class="pill orange">Threshold × Batch</span><span class="pill green">▢ best run</span></div><div style="flex:1;min-height:280px"><canvas id="c-allCider" style="width:100%;height:100%"></canvas></div></div>
+        <div class="card" style="display:flex;flex-direction:column"><div class="sec-title"><h2>Which Variant Wins?</h2><span class="pill cyan">Out of 9 paired configs</span></div><div style="flex:1;min-height:280px"><canvas id="c-wins" style="width:100%;height:100%"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- ABLATION EXPLORER -->
+    <div class="page" id="page-explorer">
+      <div class="card mb">
+        <div class="sec-title"><h2>Word Threshold × Batch Size</h2><span class="pill blue">Test score · epoch under value</span><span class="pill green">▢ best cell</span></div>
+        <div class="tabs" id="metricTabs"></div>
+        <div class="hm-wrap" id="hmWrap"></div>
+        <div class="legend-bar"><span id="hmMin">–</span><span class="lg" style="background:linear-gradient(90deg,#f7f8fc,#93b4f5,#2563eb)"></span><span id="hmMax">–</span><span class="muted">· one colour scale for both variants</span></div>
+      </div>
+      <div class="g-2 mb">
+        <div class="card"><div class="sec-title"><h2>Score vs Batch Size</h2><span class="pill orange">Lines = word threshold</span></div><canvas id="c-vsBatch" height="190"></canvas><div class="cap-note" style="margin-top:6px">Solid: GLANCE-W (local) · dashed: GLANCE-WH (global)</div></div>
+        <div class="card"><div class="sec-title"><h2>Score vs Word Threshold</h2><span class="pill purple">Lines = batch size</span></div><canvas id="c-vsThr" height="190"></canvas><div class="cap-note" style="margin-top:6px">Solid: GLANCE-W (local) · dashed: GLANCE-WH (global)</div></div>
+      </div>
+      <div class="card mb">
+        <div class="sec-title"><h2>Attention-Query Ablation</h2><span class="pill orange">AttentionAblation sheet</span></div>
+        <div id="attAbl"></div>
+      </div>
+    </div>
+
+    <!-- LOCAL VS GLOBAL -->
+    <div class="page" id="page-attention">
+      <div class="kpi-grid" id="attKpi"></div>
+      <div class="card mb">
+        <div class="sec-title"><h2>GLANCE-W − GLANCE-WH per Configuration</h2><span class="pill blue">Paired difference</span></div>
+        <div class="tabs" id="deltaTabs"></div>
+        <canvas id="c-delta" height="85"></canvas>
+        <div class="cap-note" style="margin-top:8px">Above zero: the local query (GLANCE-W) scores higher. Each pair shares the dataset, word threshold and batch size; each value is one training run.</div>
+      </div>
+      <div class="g-2 mb">
+        <div class="card"><div class="sec-title"><h2>Δ Heatmap</h2><span class="pill cyan">Config × Metric · normalised per column</span></div><div style="overflow-x:auto" id="deltaHeat"></div></div>
+        <div class="card"><div class="sec-title"><h2>Paired Summary</h2><span class="pill purple">Wilcoxon signed-rank · exact</span></div><div style="overflow-x:auto"><table class="data-table compact" id="pairTable"></table></div>
+          <div class="cap-note" style="margin-top:8px">The test treats the 9 configurations as paired observations (one seed each). It measures consistency across settings, not seed-to-seed variance.</div></div>
+      </div>
+    </div>
+
+    <!-- FACTOR EFFECTS -->
+    <div class="page" id="page-factors">
+      <div class="card mb">
+        <div class="sec-title"><h2>Marginal Effects</h2><span class="pill blue">Mean ± σ over the other factor</span></div>
+        <div class="tabs" id="facTabs"></div>
+        <div class="g-2" style="margin-bottom:0">
+          <div><div class="sub-label">By word threshold (averaged over batch sizes)</div><canvas id="c-margThr" height="170"></canvas></div>
+          <div><div class="sub-label">By batch size (averaged over thresholds)</div><canvas id="c-margBatch" height="170"></canvas></div>
+        </div>
+      </div>
+      <div class="g-2 mb">
+        <div class="card"><div class="sec-title"><h2>Selected Epoch per Configuration</h2><span class="pill orange">Checkpoint tested</span></div><canvas id="c-epochs" height="180"></canvas></div>
+        <div class="card"><div class="sec-title"><h2>Selected Epoch vs CIDEr</h2><span class="pill purple">Every run</span></div><canvas id="c-epScatter" height="180"></canvas></div>
+      </div>
+      <div class="card mb">
+        <div class="sec-title"><h2>Metric Agreement</h2><span class="pill cyan">Spearman ρ across the 18 runs</span></div>
+        <div style="overflow-x:auto" id="corrHeat"></div>
+        <div class="cap-note" style="margin-top:8px">How closely the metrics rank the same runs. Low agreement means the “best” configuration depends on which metric is used to choose it.</div>
+      </div>
+    </div>
+
+    <!-- RESULTS TABLE -->
+    <div class="page" id="page-table">
+      <div class="card mb">
+        <div class="sec-title"><h2>All Runs</h2><span class="pill blue" id="tblCount"></span>
+          <button class="btn-sm ml-auto" onclick="copyLatex()">⧉ Copy as LaTeX</button>
+          <button class="btn-sm" onclick="downloadCSV()">⬇ CSV</button></div>
+        <div class="filter-row">
+          <select class="sel" id="fDs"></select>
+          <select class="sel" id="fAtt"></select>
+          <select class="sel" id="fThr"></select>
+          <select class="sel" id="fBatch"></select>
+          <span class="cap-note">Click a column header to sort. <span class="best">Green</span>: best in the shown rows.</span>
+        </div>
+        <div style="overflow-x:auto"><table class="data-table compact" id="runTable"></table></div>
+      </div>
+      <div class="card mb">
+        <div class="sec-title"><h2>Comparison with Baselines</h2><span class="pill green" id="baseDs"></span></div>
+        <div id="baseBody"></div>
+      </div>
+    </div>
+
+    <!-- DATASET COMPARISON -->
+    <div class="page" id="page-compare">
+      <div class="card mb"><div class="sec-title"><h2>Dataset Summary</h2><span class="pill blue">Best configuration · selected on CIDEr</span></div><div style="overflow-x:auto"><table class="data-table compact" id="cmpTable"></table></div></div>
+      <div class="g-2 mb">
+        <div class="card"><div class="sec-title"><h2>Best Run: PASCAL vs Flickr</h2><span class="pill orange">GLANCE-W · GLANCE-WH</span></div><canvas id="c-cmpBest" height="185"></canvas></div>
+        <div class="card"><div class="sec-title"><h2>Local Advantage by Dataset</h2><span class="pill red">Mean W − WH over 9 configs</span></div><canvas id="c-cmpGap" height="185"></canvas></div>
+      </div>
+      <div class="g-2 mb">
+        <div class="card"><div class="sec-title"><h2>Does a Good Config Transfer?</h2><span class="pill purple" id="rhoPill">CIDEr</span></div><canvas id="c-transfer" height="200"></canvas></div>
+        <div class="card"><div class="sec-title"><h2>Selected Epochs by Dataset</h2><span class="pill cyan">Convergence speed</span></div><canvas id="c-cmpEpoch" height="200"></canvas></div>
+      </div>
+    </div>
+
+    <!-- INSIGHTS -->
+    <div class="page" id="page-insights">
+      <div class="insight-grid" id="insightGrid"></div>
+      <div class="card mb"><div class="sec-title"><h2>Model</h2><span class="pill blue">GLANCE Framework</span></div><div id="archFlow"></div><div id="archTable"></div></div>
+      <div class="card mb"><div class="sec-title"><h2>Data Notes</h2><span class="pill orange">From the exporter</span></div><ul class="note-list" id="dataNotes"></ul></div>
+    </div>
+
   </div>
 </main>
-<script id="glance-data" type="application/json">[{"dataset":"PASCAL 1K-Hindi","threshold":2,"epoch":11,"batch":32,"bleu1":45.94027999999999,"bleu2":21.71392,"bleu3":9.995770000000002,"bleu4":6.444269999999999,"meteor":21.49544999999999,"rouge":0.0,"cider":0.1787,"history":"Global History"},{"dataset":"PASCAL 1K-Hindi","threshold":2,"epoch":11,"batch":64,"bleu1":47.62725999999999,"bleu2":20.60724,"bleu3":9.86016,"bleu4":6.49112,"meteor":21.35724,"rouge":0.0,"cider":0.1779499999999999,"history":"Global History"},{"dataset":"PASCAL 1K-Hindi","threshold":2,"epoch":27,"batch":128,"bleu1":46.17642000000001,"bleu2":20.66155,"bleu3":10.15572,"bleu4":6.770629999999999,"meteor":21.1546,"rouge":0.0,"cider":0.1710999999999999,"history":"Global History"},{"dataset":"PASCAL 1K-Hindi","threshold":3,"epoch":7,"batch":32,"bleu1":48.42632999999998,"bleu2":23.17621,"bleu3":12.58136,"bleu4":8.34176,"meteor":21.59066,"rouge":0.0,"cider":0.1890800000000001,"history":"Global History"},{"dataset":"PASCAL 1K-Hindi","threshold":3,"epoch":19,"batch":64,"bleu1":47.06327,"bleu2":21.72207,"bleu3":10.20739999999999,"bleu4":6.934979999999997,"meteor":21.14499,"rouge":0.0,"cider":0.16561,"history":"Global History"},{"dataset":"PASCAL 1K-Hindi","threshold":3,"epoch":30,"batch":128,"bleu1":45.94823,"bleu2":20.77739,"bleu3":10.113,"bleu4":6.573310000000001,"meteor":21.73494,"rouge":0.0,"cider":0.17906,"history":"Global History"},{"dataset":"PASCAL 1K-Hindi","threshold":4,"epoch":26,"batch":32,"bleu1":39.63566,"bleu2":15.94755,"bleu3":8.11795,"bleu4":5.605009999999997,"meteor":17.70940999999999,"rouge":0.0,"cider":0.14702,"history":"Global History"},{"dataset":"PASCAL 1K-Hindi","threshold":4,"epoch":17,"batch":64,"bleu1":43.57834,"bleu2":19.66662,"bleu3":10.21462,"bleu4":7.02399,"meteor":19.93067,"rouge":0.0,"cider":0.15659,"history":"Global History"},{"dataset":"PASCAL 1K-Hindi","threshold":4,"epoch":12,"batch":128,"bleu1":47.41340000000001,"bleu2":24.22507000000001,"bleu3":12.23269,"bleu4":7.58226,"meteor":22.06107,"rouge":0.0,"cider":0.1919400000000001,"history":"Global History"},{"dataset":"PASCAL 1K-Hindi","threshold":2,"epoch":7,"batch":32,"bleu1":48.85613000000002,"bleu2":23.1465,"bleu3":11.78556,"bleu4":8.21103,"meteor":21.53966,"rouge":0.0,"cider":0.18426,"history":"Local History"},{"dataset":"PASCAL 1K-Hindi","threshold":2,"epoch":25,"batch":64,"bleu1":45.30494000000001,"bleu2":20.84844,"bleu3":10.08682,"bleu4":6.883839999999999,"meteor":21.58505,"rouge":0.0,"cider":0.1621,"history":"Local History"},{"dataset":"PASCAL 1K-Hindi","threshold":2,"epoch":25,"batch":128,"bleu1":44.23705000000001,"bleu2":21.59396000000001,"bleu3":10.75417,"bleu4":7.149399999999998,"meteor":19.94481,"rouge":0.0,"cider":0.17739,"history":"Local History"},{"dataset":"PASCAL 1K-Hindi","threshold":3,"epoch":8,"batch":32,"bleu1":47.37299,"bleu2":23.53865000000001,"bleu3":13.57035,"bleu4":9.193019999999997,"meteor":23.72018000000001,"rouge":0.0,"cider":0.18887,"history":"Local History"},{"dataset":"PASCAL 1K-Hindi","threshold":3,"epoch":9,"batch":64,"bleu1":44.78727,"bleu2":21.09814,"bleu3":11.20184,"bleu4":7.14321,"meteor":23.18049999999999,"rouge":0.0,"cider":0.17483,"history":"Local History"},{"dataset":"PASCAL 1K-Hindi","threshold":3,"epoch":15,"batch":128,"bleu1":47.53126,"bleu2":25.53472,"bleu3":14.59604,"bleu4":9.042979999999998,"meteor":24.69627999999999,"rouge":0.0,"cider":0.2093100000000001,"history":"Local History"},{"dataset":"PASCAL 1K-Hindi","threshold":4,"epoch":5,"batch":32,"bleu1":46.41206999999999,"bleu2":22.81699,"bleu3":13.68408000000001,"bleu4":8.643200000000002,"meteor":23.57021,"rouge":0.0,"cider":0.1884,"history":"Local History"},{"dataset":"PASCAL 1K-Hindi","threshold":4,"epoch":16,"batch":64,"bleu1":47.40587000000001,"bleu2":25.48474000000002,"bleu3":14.22954,"bleu4":8.969050000000001,"meteor":26.22892999999999,"rouge":0.0,"cider":0.21177,"history":"Local History"},{"dataset":"PASCAL 1K-Hindi","threshold":4,"epoch":26,"batch":128,"bleu1":48.68407,"bleu2":25.13596,"bleu3":13.87615,"bleu4":8.66186,"meteor":25.36096999999999,"rouge":0.0,"cider":0.2262900000000001,"history":"Local History"},{"dataset":"Flickr 8K-Hindi","threshold":2,"epoch":6,"batch":32,"bleu1":58.87203337453646,"bleu2":39.04352039555004,"bleu3":25.62225834363413,"bleu4":18.08623856613104,"meteor":36.18760939431397,"rouge":0.0,"cider":0.3340754017305317,"history":"Global History"},{"dataset":"Flickr 8K-Hindi","threshold":2,"epoch":10,"batch":64,"bleu1":60.90621755253391,"bleu2":41.25809765142152,"bleu3":27.50239184177994,"bleu4":19.36500741656367,"meteor":38.19167737948086,"rouge":0.0,"cider":0.3601483312731768,"history":"Global History"},{"dataset":"Flickr 8K-Hindi","threshold":2,"epoch":9,"batch":128,"bleu1":59.93261804697158,"bleu2":41.02216810877624,"bleu3":27.99800988875154,"bleu4":19.85980098887519,"meteor":37.76663658838068,"rouge":0.0,"cider":0.3578306551297897,"history":"Global History"},{"dataset":"Flickr 8K-Hindi","threshold":3,"epoch":6,"batch":32,"bleu1":57.5944,"bleu2":37.3258,"bleu3":24.5367,"bleu4":17.0468,"meteor":34.9689,"rouge":0.0,"cider":0.31666,"history":"Global History"},{"dataset":"Flickr 8K-Hindi","threshold":3,"epoch":3,"batch":64,"bleu1":59.50914585908527,"bleu2":40.29778491965388,"bleu3":27.29526823238565,"bleu4":19.35864524103832,"meteor":36.65600618046967,"rouge":0.0,"cider":0.3466576019777502,"history":"Global History"},{"dataset":"Flickr 8K-Hindi","threshold":3,"epoch":9,"batch":128,"bleu1":60.82170333745351,"bleu2":41.67018788627939,"bleu3":28.24846229913474,"bleu4":20.18574536464777,"meteor":38.083152039555,"rouge":0.0,"cider":0.3626798516687264,"history":"Global History"},{"dataset":"Flickr 8K-Hindi","threshold":4,"epoch":2,"batch":32,"bleu1":58.99109270704572,"bleu2":39.30475896168108,"bleu3":26.00512731767614,"bleu4":17.67951421508035,"meteor":36.11097156983929,"rouge":0.0,"cider":0.3280148331273173,"history":"Global History"},{"dataset":"Flickr 8K-Hindi","threshold":4,"epoch":2,"batch":64,"bleu1":58.9747,"bleu2":39.2879,"bleu3":26.351,"bleu4":18.4913,"meteor":36.1801,"rouge":0.0,"cider":0.33833,"history":"Global History"},{"dataset":"Flickr 8K-Hindi","threshold":4,"epoch":2,"batch":128,"bleu1":59.4891,"bleu2":40.0549,"bleu3":27.0674,"bleu4":19.0498,"meteor":36.7196,"rouge":0.0,"cider":0.34825,"history":"Global History"},{"dataset":"Flickr 8K-Hindi","threshold":2,"epoch":7,"batch":32,"bleu1":59.49485908529049,"bleu2":39.34026081582197,"bleu3":25.95904944375772,"bleu4":18.27205438813349,"meteor":36.27851792336221,"rouge":0.0,"cider":0.3375834363411617,"history":"Local History"},{"dataset":"Flickr 8K-Hindi","threshold":2,"epoch":4,"batch":64,"bleu1":60.26218665018536,"bleu2":40.66960321384422,"bleu3":27.70394313967866,"bleu4":19.35084548825713,"meteor":37.64226576019775,"rouge":0.0,"cider":0.3553065512978989,"history":"Local History"},{"dataset":"Flickr 8K-Hindi","threshold":2,"epoch":7,"batch":128,"bleu1":59.79838689740416,"bleu2":40.80638318912234,"bleu3":27.60074042027193,"bleu4":19.45153893695925,"meteor":37.21827441285534,"rouge":0.0,"cider":0.3497169344870206,"history":"Local History"},{"dataset":"Flickr 8K-Hindi","threshold":3,"epoch":39,"batch":32,"bleu1":55.17136,"bleu2":34.88794,"bleu3":22.20069,"bleu4":15.51428,"meteor":34.48362,"rouge":0.0,"cider":0.296171,"history":"Local History"},{"dataset":"Flickr 8K-Hindi","threshold":3,"epoch":5,"batch":64,"bleu1":60.28852,"bleu2":41.03362,"bleu3":27.79292,"bleu4":19.45736,"meteor":37.42195,"rouge":0.0,"cider":0.350858,"history":"Local History"},{"dataset":"Flickr 8K-Hindi","threshold":3,"epoch":10,"batch":128,"bleu1":60.63702719406665,"bleu2":41.09850803461061,"bleu3":27.71714709517924,"bleu4":19.69599258343637,"meteor":37.89638442521632,"rouge":0.0,"cider":0.3694079110012361,"history":"Local History"},{"dataset":"Flickr 8K-Hindi","threshold":4,"epoch":3,"batch":32,"bleu1":59.39797527812114,"bleu2":39.61960197775035,"bleu3":26.60878862793574,"bleu4":18.72648207663786,"meteor":36.58934734239801,"rouge":0.0,"cider":0.3346860321384428,"history":"Local History"},{"dataset":"Flickr 8K-Hindi","threshold":4,"epoch":6,"batch":64,"bleu1":59.45836959208896,"bleu2":39.64504573547592,"bleu3":26.524739184178,"bleu4":18.46846724351052,"meteor":36.98568232385655,"rouge":0.0,"cider":0.343436341161929,"history":"Local History"},{"dataset":"Flickr 8K-Hindi","threshold":4,"epoch":5,"batch":null,"bleu1":59.4927,"bleu2":40.1583,"bleu3":27.0267,"bleu4":18.9467,"meteor":36.9209,"rouge":0.0,"cider":0.34908,"history":"Local History"}]</script>
+
+<div class="toast" id="toast"></div>
 <script src="dashboard.js"></script>
-</body></html>
+</body>
+</html>
